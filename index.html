@@ -232,16 +232,20 @@ function playBell(){
   }
 }
 
-/* --- MODALITÀ TEST SEGRETA (Shift + T) --- */
-let testMode = false;  // acceso/spento
-let testDay = 1;       // giorno fittizio
+/* --- MODALITÀ TEST SEGRETA (funziona su Mac) --- */
+let testMode = false;
+let testDay = 1;
 
 document.addEventListener("keydown", (e) => {
-  // Shift + T attiva/disattiva la modalità test
-  if (e.key === "T" && e.shiftKey) {
+  // Funziona sempre: intercetta il tasto T in qualsiasi layout
+  if (e.code === "KeyT" && e.shiftKey) {
     testMode = !testMode;
+
     if (testMode) {
-      const input = prompt("Modalità test ATTIVA! Inserisci un giorno da simulare (1-24):", "8");
+      const input = prompt(
+        "Modalità test ATTIVA! Inserisci un giorno da simulare (1-24):",
+        "8"
+      );
       const parsed = parseInt(input, 10);
       if (!isNaN(parsed) && parsed >= 1 && parsed <= 24) {
         testDay = parsed;
@@ -255,7 +259,7 @@ document.addEventListener("keydown", (e) => {
     }
   }
 });
-/* ----------------------------------------- */
+/* ------------------------------------------------ */
 
 /* ⏱️ FUNZIONE CHE DECIDE SE UNA CASELLA SI PUÒ APRIRE */
 function canOpenDoor(dayNumber){
