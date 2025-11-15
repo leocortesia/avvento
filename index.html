@@ -20,7 +20,6 @@ body{
   min-height:100vh;
   overflow-x:hidden;
 
-  /* 🎄 SFONDO: file nella stessa repo (sfondo-natale.jpg) */
   background-color:#000;
   background-image:url("sfondo-natale.jpg");
   background-size:cover;
@@ -30,7 +29,6 @@ body{
   position:relative;
 }
 
-/* velatura scura per leggere il testo */
 body::before{
   content:"";
   position:fixed;
@@ -234,6 +232,19 @@ function playBell(){
   }
 }
 
+/* ⏱️ FUNZIONE CHE DECIDE SE UNA CASELLA SI PUÒ APRIRE */
+function canOpenDoor(dayNumber){
+  const now = new Date();
+  const month = now.getMonth();   // 0 = gennaio, 11 = dicembre
+  const day = now.getDate();
+
+  // Se NON siamo a dicembre → nessun blocco (così puoi testare tutto)
+  if (month !== 11) return true;
+
+  // A dicembre puoi aprire solo le caselle <= giorno corrente
+  return dayNumber <= day;
+}
+
 const TOTAL_DAYS = 24;
 const images = [];
 for(let i=1;i<=TOTAL_DAYS;i++){
@@ -261,13 +272,20 @@ days.forEach(d=>{
 });
 
 document.querySelectorAll(".door").forEach(door=>{
-  const key = "advent-door-"+door.dataset.day;
+  const day = parseInt(door.dataset.day,10);
+  const key = "advent-door-"+day;
 
   if(localStorage.getItem(key)==="true"){
     door.classList.add("open");
   }
 
   door.addEventListener("click",()=>{
+    // controllo data
+    if (!canOpenDoor(day)) {
+      alert(`Puoi aprire questa casella solo dal ${day} dicembre 🎄`);
+      return;
+    }
+
     if(door.classList.contains("open")) return;
     door.classList.add("open");
     localStorage.setItem(key,"true");
@@ -287,3 +305,4 @@ document.getElementById("resetBtn").addEventListener("click", ()=>{
 
 </body>
 </html>
+
