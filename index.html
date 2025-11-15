@@ -175,12 +175,24 @@ h1{
 }
 
 /* IMMAGINE DIETRO AL NUMERO */
-.door img{
-  width:100%;height:100%;object-fit:cover;
-  opacity:0;transition:opacity .35s;
+.door img,
+.door video{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  opacity:0;
+  transition:opacity .35s;
 }
-.door.open img{opacity:1;}
-.door.open .door-label{opacity:0;transition:opacity .25s;}
+
+.door.open img,
+.door.open video{
+  opacity:1;
+}
+
+.door.open .door-label{
+  opacity:0;
+  transition:opacity .25s;
+}
 
 .footer-note{
   margin-top:10px;
@@ -280,9 +292,9 @@ function canOpenDoor(dayNumber){
 }
 
 const TOTAL_DAYS = 24;
-const images = [];
-for(let i=1;i<=TOTAL_DAYS;i++){
-  images.push("https://picsum.photos/400?random="+i); // sostituisci con le tue foto se vuoi
+const mediaFiles = [];
+for (let i = 1; i <= TOTAL_DAYS; i++) {
+  mediaFiles.push(`images/${i}.jpg`);
 }
 
 const cal = document.getElementById("calendar");
@@ -294,13 +306,21 @@ for(let i=days.length-1;i>0;i--){
   [days[i],days[j]] = [days[j],days[i]];
 }
 
-days.forEach(d=>{
+days.forEach(d => {
   const div = document.createElement("div");
   div.className = "door";
   div.dataset.day = d;
+
+  const filename = mediaFiles[d - 1];
+  const isVideo = /\.(mp4|webm|ogg)$/i.test(filename);
+
   div.innerHTML = `
     <div class="door-label">${d}</div>
-    <img src="${images[d-1]}" alt="Day ${d}">
+    ${
+      isVideo
+        ? `<video src="${filename}" muted loop playsinline></video>`
+        : `<img src="${filename}" alt="Day ${d}">`
+    }
   `;
   cal.appendChild(div);
 });
