@@ -232,13 +232,43 @@ function playBell(){
   }
 }
 
+/* --- MODALITÀ TEST SEGRETA (Shift + T) --- */
+let testMode = false;  // acceso/spento
+let testDay = 1;       // giorno fittizio
+
+document.addEventListener("keydown", (e) => {
+  // Shift + T attiva/disattiva la modalità test
+  if (e.key === "T" && e.shiftKey) {
+    testMode = !testMode;
+    if (testMode) {
+      const input = prompt("Modalità test ATTIVA! Inserisci un giorno da simulare (1-24):", "8");
+      const parsed = parseInt(input, 10);
+      if (!isNaN(parsed) && parsed >= 1 && parsed <= 24) {
+        testDay = parsed;
+        alert("Modalità test attiva! Scarlett può aprire fino al giorno " + testDay + ".");
+      } else {
+        testDay = 1;
+        alert("Valore non valido. La modalità test userà giorno = 1.");
+      }
+    } else {
+      alert("Modalità test DISATTIVATA. Torna al comportamento normale.");
+    }
+  }
+});
+/* ----------------------------------------- */
+
 /* ⏱️ FUNZIONE CHE DECIDE SE UNA CASELLA SI PUÒ APRIRE */
 function canOpenDoor(dayNumber){
   const now = new Date();
-  const month = now.getMonth();   // 0 = gennaio, 11 = dicembre
+  const month = now.getMonth(); // 0 = gennaio, 11 = dicembre
   const day = now.getDate();
 
-  // Se NON siamo a dicembre → nessun blocco (così puoi testare tutto)
+  // Se modalità test attiva, usa il giorno fittizio
+  if (testMode) {
+    return dayNumber <= testDay;
+  }
+
+  // Se NON siamo a dicembre → nessun blocco (così puoi testare in anticipo)
   if (month !== 11) return true;
 
   // A dicembre puoi aprire solo le caselle <= giorno corrente
@@ -248,7 +278,7 @@ function canOpenDoor(dayNumber){
 const TOTAL_DAYS = 24;
 const images = [];
 for(let i=1;i<=TOTAL_DAYS;i++){
-  images.push("https://picsum.photos/400?random="+i);
+  images.push("https://picsum.photos/400?random="+i); // sostituisci con le tue foto se vuoi
 }
 
 const cal = document.getElementById("calendar");
@@ -293,6 +323,7 @@ document.querySelectorAll(".door").forEach(door=>{
   });
 });
 
+// RESET
 document.getElementById("resetBtn").addEventListener("click", ()=>{
   document.querySelectorAll(".door").forEach(door=>{
     door.classList.remove("open");
@@ -305,4 +336,5 @@ document.getElementById("resetBtn").addEventListener("click", ()=>{
 
 </body>
 </html>
+
 
