@@ -216,15 +216,12 @@ h1{
   opacity:1;
   pointer-events:auto;
 }
-
 .lightbox-content{
   max-width:95vw;
-  width:auto;
   background:transparent;
   position:relative;
   animation:slideUp .35s ease-out;
 }
-
 .lightbox-media{
   max-width:95vw;
   max-height:85vh;
@@ -236,7 +233,6 @@ h1{
   align-items:center;
   justify-content:center;
 }
-
 .lightbox-media img,
 .lightbox-media video{
   max-width:100%;
@@ -246,7 +242,6 @@ h1{
   object-fit:contain;
   display:block;
 }
-
 .lightbox-close{
   position:absolute;
   top:8px;
@@ -285,12 +280,10 @@ h1{
   pointer-events: none;
   transition: opacity .5s ease;
 }
-
 .final-screen.show {
   opacity: 1;
   pointer-events: auto;
 }
-
 .final-text {
   font-family: "Mountains of Christmas", cursive;
   font-size: 4rem;
@@ -300,12 +293,10 @@ h1{
   text-shadow: 0 0 20px rgba(255,0,0,0.9), 0 0 40px rgba(255,255,255,0.9);
   animation: finalPop 0.8s ease forwards;
 }
-
 @keyframes finalPop {
   0% { transform: scale(0.6); opacity: 0; }
   100% { transform: scale(1); opacity: 1; }
 }
-
 .final-close {
   position: absolute;
   top: 20px;
@@ -351,7 +342,7 @@ h1{
   <p class="footer-note">Le caselle aperte rimangono aperte anche se ricarichi la pagina 💌</p>
 </div>
 
-<!-- LIGHTBOX OVERLAY PER MEDIA -->
+<!-- LIGHTBOX OVERLAY -->
 <div id="lightbox" class="lightbox">
   <div class="lightbox-content">
     <button class="lightbox-close" type="button">&times;</button>
@@ -361,7 +352,7 @@ h1{
 
 <!-- FULLSCREEN FINAL MESSAGE -->
 <div id="finalScreen" class="final-screen">
-  <button class="final-close" onclick="closeFinalScreen()">&times;</button>
+  <button class="final-close" type="button" onclick="closeFinalScreen()">&times;</button>
   <div class="final-text">Buon Natale amore mio! 🎄❤️</div>
 </div>
 
@@ -404,7 +395,6 @@ function openLightbox(door){
 
   lightbox.classList.add("open");
 }
-
 function closeLightbox(){
   const lightbox = document.getElementById("lightbox");
   const container = document.getElementById("lightboxMedia");
@@ -412,7 +402,6 @@ function closeLightbox(){
   lightbox.classList.remove("open");
   container.innerHTML = "";
 }
-
 document.getElementById("lightbox").addEventListener("click",(e)=>{
   if (e.target.id === "lightbox" || e.target.classList.contains("lightbox-close")) {
     closeLightbox();
@@ -425,7 +414,6 @@ function showFinalScreen() {
   if (!f) return;
   f.classList.add("show");
 }
-
 function closeFinalScreen() {
   const f = document.getElementById("finalScreen");
   if (!f) return;
@@ -437,7 +425,7 @@ let testMode = false;
 let testDay = 1;
 
 document.addEventListener("keydown", (e) => {
-  // ESC chiude sia lightbox che schermata finale
+  // ESC chiude lightbox e messaggio finale
   if (e.key === "Escape") {
     closeLightbox();
     closeFinalScreen();
@@ -449,7 +437,7 @@ document.addEventListener("keydown", (e) => {
     if (testMode) {
       const input = prompt(
         "Modalità test ATTIVA! Inserisci un giorno da simulare (1-24):",
-        "24"
+        "8"
       );
       const parsed = parseInt(input, 10);
       if (!isNaN(parsed) && parsed >= 1 && parsed <= 24) {
@@ -557,18 +545,19 @@ document.querySelectorAll(".door").forEach(door=>{
       return;
     }
 
+    // se la casella è già aperta, solo lightbox
     if(door.classList.contains("open")) {
-      // se è già aperta, mostra comunque il lightbox
       openLightbox(door);
       return;
     }
 
+    // apri per la prima volta
     door.classList.add("open");
     localStorage.setItem(key,"true");
     playBell();
     openLightbox(door);
 
-    // se è il giorno 24, mostra il messaggio finale a schermo intero
+    // se è il giorno 24, mostra messaggio finale e salvalo
     if(day === 24){
       localStorage.setItem("final-message-shown","true");
       showFinalScreen();
@@ -597,4 +586,3 @@ document.getElementById("resetBtn").addEventListener("click", ()=>{
 
 </body>
 </html>
-
