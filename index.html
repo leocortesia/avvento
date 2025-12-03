@@ -199,22 +199,6 @@ h1{
   opacity:.85;
 }
 
-/* MESSAGGIO FINALE */
-.final-message{
-  margin-top:12px;
-  font-size:1.05rem;
-  font-weight:700;
-  color:#ffeaa7;
-  text-shadow:0 0 8px rgba(0,0,0,0.8);
-  opacity:0;
-  transform:translateY(8px);
-  transition:opacity .4s ease, transform .4s ease;
-}
-.final-message.show{
-  opacity:1;
-  transform:translateY(0);
-}
-
 /* LIGHTBOX PER IMMAGINE/VIDEO GRANDE */
 .lightbox{
   position:fixed;
@@ -274,10 +258,58 @@ h1{
   }
 }
 
+/* FULLSCREEN FINAL MESSAGE */
+.final-screen {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.88);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .5s ease;
+}
+
+.final-screen.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.final-text {
+  font-family: "Mountains of Christmas", cursive;
+  font-size: 4rem;
+  max-width: 90%;
+  text-align: center;
+  color: #ffdddd;
+  text-shadow: 0 0 20px rgba(255,0,0,0.9), 0 0 40px rgba(255,255,255,0.9);
+  animation: finalPop 0.8s ease forwards;
+}
+
+@keyframes finalPop {
+  0% { transform: scale(0.6); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.final-close {
+  position: absolute;
+  top: 20px;
+  right: 25px;
+  font-size: 2.5rem;
+  background: transparent;
+  border: none;
+  color: white;
+  cursor: pointer;
+  text-shadow: 0 0 10px black;
+}
+
 /* RESPONSIVE */
 @media(max-width:700px){
   h1{font-size:2.4rem;}
   .calendar{grid-template-columns:repeat(4,1fr);}
+  .final-text{font-size:3rem;}
 }
 </style>
 </head>
@@ -304,16 +336,20 @@ h1{
   <button id="resetBtn" class="reset-btn">🔄 Reset caselle</button>
   <div id="calendar" class="calendar"></div>
   <p class="footer-note">Le caselle aperte rimangono aperte anche se ricarichi la pagina 💌</p>
-  <!-- MESSAGGIO CHE APPARE DOPO IL 24 -->
-  <p id="finalMessage" class="final-message">Buon Natale amore mio! 🎄❤️</p>
 </div>
 
-<!-- LIGHTBOX OVERLAY -->
+<!-- LIGHTBOX OVERLAY PER MEDIA -->
 <div id="lightbox" class="lightbox">
   <div class="lightbox-content">
     <button class="lightbox-close" type="button">&times;</button>
     <div id="lightboxMedia" class="lightbox-media"></div>
   </div>
+</div>
+
+<!-- FULLSCREEN FINAL MESSAGE -->
+<div id="finalScreen" class="final-screen">
+  <button class="final-close" onclick="closeFinalScreen()">&times;</button>
+  <div class="final-text">Buon Natale amore mio! 🎄❤️</div>
 </div>
 
 <script>
@@ -370,18 +406,30 @@ document.getElementById("lightbox").addEventListener("click",(e)=>{
   }
 });
 
-document.addEventListener("keydown",(e)=>{
-  // ESC per chiudere lightbox
-  if (e.key === "Escape") {
-    closeLightbox();
-  }
-});
+/* FINAL CHRISTMAS MESSAGE */
+function showFinalScreen() {
+  const f = document.getElementById("finalScreen");
+  if (!f) return;
+  f.classList.add("show");
+}
+
+function closeFinalScreen() {
+  const f = document.getElementById("finalScreen");
+  if (!f) return;
+  f.classList.remove("show");
+}
 
 /* --- MODALITÀ TEST SEGRETA (Shift + T) --- */
 let testMode = false;
 let testDay = 1;
 
 document.addEventListener("keydown", (e) => {
+  // ESC chiude sia lightbox che schermata finale
+  if (e.key === "Escape") {
+    closeLightbox();
+    closeFinalScreen();
+  }
+
   if (e.code === "KeyT" && e.shiftKey) {
     testMode = !testMode;
 
@@ -481,13 +529,6 @@ days.forEach(d => {
   cal.appendChild(div);
 });
 
-// mostra messaggio finale se la 24 è già aperta
-function showFinalMessage(){
-  const finalMsg = document.getElementById("finalMessage");
-  if(!finalMsg) return;
-  finalMsg.classList.add("show");
-}
-
 // stato aperto + click
 document.querySelectorAll(".door").forEach(door=>{
   const day = parseInt(door.dataset.day,10);
@@ -514,16 +555,17 @@ document.querySelectorAll(".door").forEach(door=>{
     playBell();
     openLightbox(door);
 
-    // se è il giorno 24, mostra il messaggio finale
+    // se è il giorno 24, mostra il messaggio finale a schermo intero
     if(day === 24){
-      showFinalMessage();
+      localStorage.setItem("final-message-shown","true");
+      showFinalScreen();
     }
   });
 });
 
-// inizializza messaggio finale se la 24 era già aperta
-if (localStorage.getItem("advent-door-24") === "true") {
-  showFinalMessage();
+// se il messaggio finale era già stato mostrato, riaprilo
+if (localStorage.getItem("final-message-shown") === "true") {
+  showFinalScreen();
 }
 
 // RESET
@@ -534,17 +576,14 @@ document.getElementById("resetBtn").addEventListener("click", ()=>{
   for(let d=1;d<=TOTAL_DAYS;d++){
     localStorage.removeItem("advent-door-"+d);
   }
-  // nasconde messaggio finale
-  const finalMsg = document.getElementById("finalMessage");
-  if(finalMsg){
-    finalMsg.classList.remove("show");
-  }
-  // chiude eventuale lightbox aperto
+  localStorage.removeItem("final-message-shown");
   closeLightbox();
+  closeFinalScreen();
 });
 </script>
 
 </body>
 </html>
+
 
 
