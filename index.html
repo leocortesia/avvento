@@ -538,3 +538,63 @@ days.forEach(d => {
         ? `<video src="${filename}" muted loop playsinline></video>`
         : `<img src="${filename}" alt="Day ${d}">`
     }
+  `;
+  cal.appendChild(div);
+});
+
+// stato aperto + click
+document.querySelectorAll(".door").forEach(door=>{
+  const day = parseInt(door.dataset.day,10);
+  const key = "advent-door-"+day;
+
+  if(localStorage.getItem(key)==="true"){
+    door.classList.add("open");
+  }
+
+  door.addEventListener("click",()=>{
+    if (!canOpenDoor(day)) {
+      alert(`Furbetta!!! Puoi aprire questa casella solo dal giorno ${day} dicembre 🎄`);
+      return;
+    }
+
+    if(door.classList.contains("open")) {
+      // se è già aperta, mostra comunque il lightbox
+      openLightbox(door);
+      return;
+    }
+
+    door.classList.add("open");
+    localStorage.setItem(key,"true");
+    playBell();
+    openLightbox(door);
+
+    // se è il giorno 24, mostra il messaggio finale a schermo intero
+    if(day === 24){
+      localStorage.setItem("final-message-shown","true");
+      showFinalScreen();
+    }
+  });
+});
+
+// se il messaggio finale era già stato mostrato, riaprilo al caricamento
+if (localStorage.getItem("final-message-shown") === "true") {
+  showFinalScreen();
+}
+
+// RESET
+document.getElementById("resetBtn").addEventListener("click", ()=>{
+  document.querySelectorAll(".door").forEach(door=>{
+    door.classList.remove("open");
+  });
+  for(let d=1;d<=TOTAL_DAYS;d++){
+    localStorage.removeItem("advent-door-"+d);
+  }
+  localStorage.removeItem("final-message-shown");
+  closeLightbox();
+  closeFinalScreen();
+});
+</script>
+
+</body>
+</html>
+
